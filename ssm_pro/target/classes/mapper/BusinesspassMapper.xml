@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.minjie.dao.BusinesspassDao">
+    <!--#检查用户名对应的密码是否正确-->
+    <select id="selectByBusinessPass" parameterType="com.minjie.pojo.Businesspass" resultType="com.minjie.pojo.Businesspass">
+            select * from business_pass where business_pass_word =#{business_pass_word} and business_id=#{business_id};
+    </select>
+    <!--#创建对应用户的密码-->
+    <insert id="insertBusinessPass" parameterType="com.minjie.pojo.Businesspass">
+            insert into business_pass (business_pass_word,business_id) VALUES (#{business_pass_word},#{business_id});
+    </insert>
+
+    <update id="updatebusinessPassword" parameterType="com.minjie.pojo.Businesspass">
+    update business_pass set business_pass_word = #{business_pass_word} where business_id=#{business_id};
+</update>
+
+</mapper>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.minjie.dao.AudioDao">
+    <!--=================================================================-->
+    <!--商户部分-->
+    <!--上传音频-->
+    <insert id="insertAudio" parameterType="com.minjie.pojo.Audio" >
+         insert into audio(audio_title,audio_src,audio_date,business_id,status)
+        values(#{audio_title},#{audio_src},SYSDATE(),#{business_id},1);
+    </insert>
+    <!--音频列表-->
+    <select id="selectAudio" parameterType="int" resultType="com.minjie.pojo.Audio">
+        SELECT a.audio_id,a.audio_title,a.audio_src,a.audio_date,i.business_info_legal_person
+         FROM audio a,business b,business_info i
+             where a.business_id=b.business_id and a.business_id=i.business_id and
+             a.business_id=#{business_id} and a.status=1
+         ORDER BY a.audio_date DESC;
+    </select>
+
+    <!-- 将音频放入回收站-->
+
+    <update id="deleteAudio" parameterType="int">
+         update audio set status=3
+         where audio_id=#{audio_id}
+    </update>
+
+    <!--显示回收站-->
+    <select id="selectRestoreAudio" parameterType="int" resultType="com.minjie.pojo.Audio">
+         SELECT a.audio_id,a.audio_title,a.audio_src,a.audio_date,i.business_info_legal_person
+         FROM audio a,business b,business_info i
+             where a.business_id=b.business_id and a.business_id=i.business_id and
+             a.business_id=#{business_id} and a.status=3 or a.status=2
+         ORDER BY a.audio_date DESC;
+    </select>
+
+    <!--还原回收站(非管理员删除的视频)-->
+    <update id="restoreAudio" parameterType="com.minjie.pojo.Audio">
+        update audio set status=1
+        where audio_id=#{audio_id} and status=3
+    </update>
+    <!--=================================================================-->
+    <!--=================================================================-->
+    <!--=======================管理员部分=================================-->
+    <!--=================================================================-->
+    <!--=================================================================-->
+    <!--管理员列表查询所有音频-->
+    <select id="adminSelectAllAudio" resultType="com.minjie.pojo.Audio" parameterType="int">
+        SELECT a.audio_id,a.audio_title,a.audio_src,a.audio_date,b.business_username
+        FROM audio a,business b
+        where a.business_id=b.business_id and a.status=1
+        ORDER BY a.audio_date desc
+    </select>
+
+    <!--管理员列表查询回收站音频-->
+    <select id="adminSelectRecycleAudio" resultType="com.minjie.pojo.Audio" parameterType="int">
+        SELECT a.audio_id,a.audio_title,a.audio_src,a.audio_date,b.business_username
+        FROM audio a,business b
+        where a.business_id=b.business_id and a.status=2
+        ORDER BY a.audio_date desc;
+    </select>
+
+    <!--管理员从列表将音频移入回收站-->
+    <update id="adminDeleteAudio" parameterType="int">
+        update audio set status = 2 where audio_id = #{audio_id};
+    </update>
+
+    <!--管理员从回收站恢复音频-->
+    <update id="adminRestoreAudio" parameterType="int">
+        update audio set status = 1 where audio_id = #{audio_id};
+    </update>
+
+    <!--管理员查询对应商户音频列表-->
+    <select id="selectAudioByBusinessName" parameterType="String" resultType="com.minjie.pojo.Audio">
+        select a.audio_id,a.audio_title,a.audio_src,a.audio_date,b.business_username from audio a,business b
+        where a.business_id=b.business_id and b.business_username = #{business_username}
+        ORDER BY a.audio_date desc;
+    </select>
+</mapper>

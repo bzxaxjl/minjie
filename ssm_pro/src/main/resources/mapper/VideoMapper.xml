@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.minjie.dao.VideoDao">
+
+    <!--上传视频-->
+    <insert id="businsertVideo" parameterType="com.minjie.pojo.Video" >
+         insert into video(video_title,video_src,video_date,business_id,status)
+        values(#{video_title},#{video_src},SYSDATE(),#{business_id},1);
+    </insert>
+
+    <!--视频列表-->
+    <select id="busselectVideo" parameterType="int" resultType="com.minjie.pojo.Video">
+        SELECT v.video_id,v.video_title,v.video_src,v.video_date,i.business_info_legal_person
+         FROM video v,business b,business_info i
+             where v.business_id=b.business_id and v.business_id=i.business_id and
+             v.business_id=#{business_id} and v.status=1
+         ORDER BY v.video_date DESC;
+    </select>
+
+    <!-- 将视频放入回收站-->
+
+    <update id="busdeleteVideo" parameterType="int">
+         update video set status=3
+         where video_id=#{video_id}
+    </update>
+
+    <!--显示回收站-->
+    <select id="selectRestoreVideo" parameterType="int" resultType="com.minjie.pojo.Video">
+        SELECT v.video_id,v.video_title,v.video_src,v.video_date,i.business_info_legal_person
+         FROM video v,business b,business_info i
+             where v.business_id=b.business_id and v.business_id=i.business_id and
+             v.business_id=#{business_id} and v.status=3 or v.status=2
+         ORDER BY v.video_date DESC;
+    </select>
+
+    <!--还原回收站(非管理员删除的视频)-->
+    <update id="restoreVideo" parameterType="com.minjie.pojo.Video">
+        update video set status=1
+        where video_id=#{video_id} and status=3
+    </update>
+
+
+
+
+
+    <!--=================================================================-->
+    <!--=================================================================-->
+    <!--=======================管理员部分=================================-->
+    <!--=================================================================-->
+    <!--=================================================================-->
+    <!--加入列表-->
+
+    <select id="selectVideo" parameterType="int" resultType="com.minjie.pojo.Video">
+        SELECT v.video_id,v.video_title,v.video_src,v.video_date,b.business_username
+        FROM video v,business b
+        where v.business_id=b.business_id and v.business_id = #{business_id}
+        ORDER BY v.video_date desc
+    </select>
+
+    <!--管理员列表查询所有视频-->
+    <select id="adminSelectAllVideo" resultType="com.minjie.pojo.Video" parameterType="int">
+        SELECT v.video_id,v.video_title,v.video_src,v.video_date,b.business_username
+        FROM video v,business b
+        where v.business_id=b.business_id and v.status=1
+        ORDER BY v.video_date desc
+    </select>
+
+    <!--管理员列表查询回收站视频-->
+    <select id="adminSelectRecycleVideo" resultType="com.minjie.pojo.Video" parameterType="int">
+        SELECT v.video_id,v.video_title,v.video_src,v.video_date,b.business_username
+        FROM video v,business b
+        where v.business_id=b.business_id and v.status=2
+        ORDER BY v.video_date desc;
+    </select>
+
+    <!--管理员从列表将视频移入回收站-->
+    <update id="adminDeleteVideo" parameterType="int">
+        update video set status = 2 where video_id = #{video_id};
+    </update>
+
+    <!--管理员从回收站恢复视频-->
+    <update id="adminRestoreVideo" parameterType="int">
+        update video set status = 1 where video_id = #{video_id};
+    </update>
+
+    <!--管理员查询对应商户视频列表-->
+    <select id="selectVideoByBusinessName" parameterType="String" resultType="com.minjie.pojo.Video">
+        select v.video_id,v.video_title,v.video_src,v.video_date,b.business_username from video v,business b
+        where v.business_id=b.business_id and b.business_username = #{business_username}
+        ORDER BY v.video_date desc;
+    </select>
+
+</mapper>
